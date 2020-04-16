@@ -1,4 +1,7 @@
-#! /usr/bin/env python3
+# Write a single python script (preferably python 3) that does two things:
+# ● Uses the Twitter user timeline API and writes @realself’s most recent 100 tweets to a newline-delimited JSON file in the current working directory where each line is a JSON dict containing the details for a single tweet.
+# ○ Note: The file as a whole will not parse as valid JSON, but each individual line should. ● Uses the Twitter search API for “#Seattle” and prints to the screen a list of distinct hashtags
+# (case-insensitive, please) appearing in first 100 results the API returns and the number of times each hashtag appears.
 
 import json
 import oauth2 as oauth
@@ -6,34 +9,39 @@ import re
 import configparser
 import os
 import sys
+import requests
 
 if len(sys.argv) > 1:
     config_file = sys.argv[1]
 else:
-    Print("Config file not provided, check usage")
+    print("Config file not provided, check usage")
     sys.exit()
 
 config = configparser.ConfigParser()
 config.read(config_file)
 
+# connection tokens from config file
 consumer_key = config.get('Tokens', 'consumer_key')
 consumer_secret = config.get('Tokens', 'consumer_secret')
 access_token_key = config.get('Tokens', 'access_token_key')
 access_token_secret = config.get('Tokens', 'access_token_secret')
 
+#Creating Client
 
 consumer = oauth.Consumer(key=consumer_key, secret=consumer_secret)
 access_token = oauth.Token(key=access_token_key, secret=access_token_secret)
 client = oauth.Client(consumer, access_token)
 
+#tweets
 screen_name = config.get('Tweet', 'screen_name')
 tweet_count = config.get('Tweet', 'tweet_count')
 
-search_key = config.get('Search', 'search_keywords').replace(
-    '#', '%23').replace(' ', '%20').lower()
+#Search keword(s)
+search_key = config.get('Search', 'search_keywords').replace('#', '%23').replace(' ', '%20').lower()
 search_count = config.get('Search', 'search_count')
 
 
+# json file, directory
 dir = os.getcwd()
 json_file = config.get('Json', 'File_Name')
 
